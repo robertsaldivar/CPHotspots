@@ -1,0 +1,209 @@
+---
+title: "CP Hotspots"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(raster)       #Main raster library with nearly all functions used in this analysis
+library(rgdal)        #Spatial library - most functions used from rgdal are for vectors (shapefiles)
+library(rasterVis)    #Useful for raster visualizations
+library(maps)         #Has a database of maps. I use this to add a map to my raster to visualize land boundaries
+library(rgeos)        #Need this library for topology operations on geometries
+library(dplyr)        #NOT spatial - this is a data wrangling library
+library(RColorBrewer) #Also not spatial - used to set the spectral color scheme 
+
+
+```
+
+####set the colors
+
+```{r}
+
+# view some color palettes
+# display.brewer.all()
+# rainbow color scheme
+cols = rev(colorRampPalette(brewer.pal(11, 'Spectral'))(255)) 
+
+#setting smaller margins for plotting
+par(mar=c(2,2,1,1))
+
+
+
+```
+
+
+
+###Import the Rasters
+
+```{r}
+
+#all the species raster
+allspp <- raster("ca_curr_sp_rich.tif")
+
+allspp
+# class      : RasterLayer 
+# dimensions : 56, 40, 2240  (nrow, ncol, ncell)
+# resolution : 0.5, 0.5  (x, y)
+# extent     : -129.5, -109.5, 21.5, 49.5  (xmin, xmax, ymin, ymax)
+# crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+# source     : H:/GIT/CPHotspots/ca_curr_sp_rich.tif 
+# names      : ca_curr_sp_rich 
+# values     : 0, 3099  (min, max)
+
+#Sea Surface Temperature
+threat_sst <- raster("impact_sst.tif")
+
+threat_sst
+# class      : RasterLayer 
+# dimensions : 3659, 4407, 16125213  (nrow, ncol, ncell)
+# resolution : 0.009448675, 0.009448675  (x, y)
+# extent     : -138.7553, -97.11496, 21.61105, 56.18375  (xmin, xmax, ymin, ymax)
+# crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+# source     : H:/GIT/CPHotspots/impact_sst.tif 
+# names      : impact_sst
+
+
+#UV
+threat_uv <- raster("impact_uv.tif")
+
+threat_uv
+# class      : RasterLayer 
+# dimensions : 3659, 4407, 16125213  (nrow, ncol, ncell)
+# resolution : 0.009448675, 0.009448675  (x, y)
+# extent     : -138.7553, -97.11496, 21.61105, 56.18375  (xmin, xmax, ymin, ymax)
+# crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+# source     : H:/GIT/CPHotspots/impact_uv.tif 
+# names      : impact_uv 
+
+#Ocean Acidification
+threat_acid <- raster("impact_acid.tif")
+
+threat_acid
+# class      : RasterLayer 
+# dimensions : 3659, 4407, 16125213  (nrow, ncol, ncell)
+# resolution : 0.009448675, 0.009448675  (x, y)
+# extent     : -138.7553, -97.11496, 21.61105, 56.18375  (xmin, xmax, ymin, ymax)
+# crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+# source     : H:/GIT/CPHotspots/impact_acid.tif 
+# names      : impact_acid
+
+```
+
+**Visualize the threats**
+
+```{r}
+#SST
+plot(threat_sst,col=cols)
+map('world',fill=T,add=T,col='gray')
+
+#Acid
+plot(threat_acid, col = cols)
+map('world',fill=T,add=T,col='gray')
+
+#UV
+plot(threat_uv, col = cols)
+map('world',fill=T,add=T,col='gray')
+
+```
+
+
+
+*Overlay The Threats*
+
+```{r}
+
+#get rid of 0s
+threat_acidNA <- reclassify(threat_acid,rcl=c(-Inf,0,NA))
+
+threat_uvNA <- reclassify(threat_uv,rcl=c(-Inf,0,NA))
+
+threat_sstNA <- mask(threat_sst, threat_acidNA)
+
+#First make binary
+
+
+#### Function to output a binary raster based on a user-given quantile (default is top 20%) ###
+reclassify_topx <- function(rast,quant=0.8) {
+  topx <- quantile(rast,quant) #find the 80% quantile of the raster values
+  maxVal <- cellStats(rast,max) #find the maximum
+  rcl <- c(-Inf,topx,0,
+            topx,maxVal,1) # reclassify matrix (see help file for ?reclassify)
+  out <- reclassify(rast,rcl=rcl)
+  return(out) # returns the new binary raster
+}
+
+### Find top 20%, using the code from above. We could easily choose a different quantile here. ###
+acid_top20 <- reclassify_topx(threat_acidNA,quant=0.8)
+
+uv_top20 <- reclassify_topx(threat_uvNA,quant=0.8)
+
+sst_top20 <- reclassify_topx(threat_sstNA,quant=0.8)
+
+#overlay the threats
+all_threats <- overlay(acid_top20,uv_top20,sst_top20,fun=function(x,y,z){x+y+z})
+
+plot(all_threats)
+
+
+```
+
+*Top 20 species*
+
+```{r}
+
+#resample the species layer so the extent is the same
+spp_res <- resample(allspp,all_threats,method='ngb',progress='text')
+
+#change 0 to NA
+spp_resNA <- reclassify(spp_res,rcl=c(-Inf,0,NA))
+
+#species top 20
+spp_top <- reclassify_topx(spp_resNA, quant = 0.8)
+
+plot(spp_top)
+
+```
+
+*Overlay species AND threats*
+
+```{r}
+#adding species to threats
+hotspots <- overlay(spp_top,all_threats,fun=function(x,y){x+y})
+
+plot(hotspots)
+
+
+#multipling species and threats 
+#can see exactly where the species intersect with the threats
+#2 = threat and speacies present
+#no 3 because there were no species present where a 3 level threat exists
+hotspots_2 <- overlay(spp_top,all_threats,fun=function(x,y){x*y})
+
+plot(hotspots_2)
+map('world',fill=T,add=T,col='gray')
+
+```
+
+Things to consider:
+- focus on a certain area
+
+```{r}
+
+
+#SB Channel
+plot(hotspots_2,ext=extent(-121,-117,32,35),main="Hotspots, SB Channel")
+map('world',fill=T,add=T,col='gray80')
+
+
+#PNW
+plot(hotspots_2, ext=extent(-130, -120, 40, 50), main = "Hotspots, PNW")
+map('world',fill=T,add=T,col='gray80')
+
+```
+
