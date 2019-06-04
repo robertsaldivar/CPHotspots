@@ -289,6 +289,39 @@ map('world',fill=T,add=T,col='gray')
 ```
 
 ```{r}
-#making thelayers usable
+#making the layers usable
+#Removing 0's from raster layer
+threat_oilNA <- reclassify(threat_oil,rcl=c(-Inf,0,NA))
+
+threat_nutrientsNA <- reclassify(threat_nutrients, rcl=c(-Inf,0,NA))
+
+threat_trashNA <- reclassify(threat_trash, rcl=c(-Inf,0,NA))
+
+threat_shippingNA <- reclassify(threat_shipping, rcl=c(-Inf,0,NA))
+
+```
+
+```{r}
+#making oil binary
+oil_cutoff <- quantile(threat_oilNA,0.8)
+oil_maxVal <- cellStats(threat_oilNA,max)
+```
+
+```{r}
+#making nutrients binary
+nutrients_cutoff <- quantile(threat_nutrientNA,0.8)
+Nutrients_maxVal <- cellStats(threat_nutrientNA,max)
+```
+
+```{r}
+#making shipping binary
+shipping_cutoff <- quantile(threat_shippingNA,0.8)
+shipping_maxVal <- cellStats(threat_shippingNA,max)
+```
+
+```{r}
+#making trash binary
+trash_cutoff <- quantile(threat_trashNA,0.8)
+trash_maxVal <- cellStats(threat_trashNA,max)
 ```
 
