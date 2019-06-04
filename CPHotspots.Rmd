@@ -257,7 +257,7 @@ threat_nutrients <- raster("impact_nutrients.tif")
 threat_nutrients
 
 #Shipping (commercial, cruise, ferry)
-threats_shipping <- raster("impact_nutrients.tif")
+threat_shipping <- raster("impact_nutrients.tif")
 #class      : RasterLayer 
 #dimensions : 3659, 4407, 16125213  (nrow, ncol, ncell)
 #resolution : 0.009448675, 0.009448675  (x, y)
@@ -266,6 +266,26 @@ threats_shipping <- raster("impact_nutrients.tif")
 #source     : C:/Users/R. & S. Saldivar/Documents/Bren School/Spring 2019/ESM 270/Labs/RLab/CPHotspots/impact_nutrients.tif 
 #names      : impact_nutrients 
 
-threats_shipping
+threat_shipping
+```
+
+*Visualising the Threats*
+
+```{r}
+#Oil
+plot(threat_oil, cols=cols)
+map('world',fill=T,add=T,col='gray')
+
+#trash
+plot(threat_trash, cols=cols)
+map('world',fill=T,add=T,col='gray')
+
+#shipping
+plot(threat_shipping, cols=cols)
+map('world',fill=T,add=T,col='gray')
+
+#nutrients
+plot(threat_nutrients, cols=cols)
+map('world',fill=T,add=T,col='gray')
 ```
 
