@@ -188,8 +188,7 @@ hotspots_2 <- overlay(spp_top,all_threats,fun=function(x,y){x*y})
 plot(hotspots_2)
 map('world',fill=T,add=T,col='gray')
 
-#export this raster to ARC
-writeRaster(hotspots_2, "HotspotLab", format = "GTiff")
+
 
 ```
 
@@ -273,19 +272,23 @@ threat_shipping
 
 ```{r}
 #Oil
-plot(threat_oil, cols=cols)
+plot(threat_oil, col=cols)
 map('world',fill=T,add=T,col='gray')
 
 #trash
-plot(threat_trash, cols=cols)
+plot(threat_trash, col=cols)
 map('world',fill=T,add=T,col='gray')
 
 #shipping
-plot(threat_shipping, cols=cols)
+plot(threat_shipping, col=cols)
 map('world',fill=T,add=T,col='gray')
 
 #nutrients
-plot(threat_nutrients, cols=cols)
+plot(threat_nutrients, col=cols)
 map('world',fill=T,add=T,col='gray')
+```
+
+```{r}
+#making thelayers usable
 ```
 
