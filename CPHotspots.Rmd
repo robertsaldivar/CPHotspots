@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 
-library(tidyverse)
+
 library(raster)       #Main raster library with nearly all functions used in this analysis
 library(rgdal)        #Spatial library - most functions used from rgdal are for vectors (shapefiles)
 library(rasterVis)    #Useful for raster visualizations
@@ -188,6 +188,9 @@ hotspots_2 <- overlay(spp_top,all_threats,fun=function(x,y){x*y})
 plot(hotspots_2)
 map('world',fill=T,add=T,col='gray')
 
+#export this raster to ARC
+writeRaster(hotspots_2, "HotspotLab", format = "GTiff")
+
 ```
 
 Things to consider:
@@ -197,15 +200,16 @@ Things to consider:
 
 
 #SB Channel
-plot(hotspots_2,ext=extent(-121,-117,32,35),main="Hotspots, SB Channel")
+plot(hotspots_2,ext=extent(-122,-117,32,36),main="Hotspots, SB Channel")
 map('world',fill=T,add=T,col='gray80')
 
-# color breakpoints. We need three colors now! (cell values of 0,1,or 2)
-brks_hotspots <- seq(0,3,length.out=4) 
-hotspot_cols <- c("white","lightblue","firebrick") 
 
 #PNW
-plot(hotspots_2, col=hotspot_cols, ext=extent(-130, -120, 40, 50), main = "Hotspots, PNW")
+plot(hotspots_2, ext=extent(-130, -120, 42, 50), main = "Hotspots, PNW")
+map('world',fill=T,add=T,col='gray80')
+
+#Tip of Baja California
+plot(hotspots_2,ext=extent(-117,-111,22,28),main="Hotspots, Baja California")
 map('world',fill=T,add=T,col='gray80')
 
 ```
