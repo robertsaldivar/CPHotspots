@@ -214,3 +214,58 @@ map('world',fill=T,add=T,col='gray80')
 
 ```
 
+*Robert's Graphs*
+Focusing on the same of species but focusing on anthropogent threats of shipping, oil, trash and nutrients.
+
+```{r}
+#Loading the Threat layers of shipping, oil, trash and nutrients.
+
+#Oil (Benthic structures; oil rigs)
+threat_oil <- raster("impact_oil.tif")
+#class      : RasterLayer 
+#dimensions : 3659, 4407, 16125213  (nrow, ncol, ncell)
+#resolution : 0.009448675, 0.009448675  (x, y)
+#extent     : -138.7553, -97.11496, 21.61105, 56.18375  (xmin, xmax, ymin, ymax)
+#crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+#source     : C:/Users/R. & S. Saldivar/Documents/Bren School/Spring 2019/ESM 270/Labs/RLab/CPHotspots/impact_oil.tif 
+#names      : impact_oil 
+
+threat_oil
+
+#Trash (Ocean dumping; marine debris)
+threat_trash <- raster("impact_trash.tif")
+#class      : RasterLayer 
+#dimensions : 3659, 4407, 16125213  (nrow, ncol, ncell)
+#resolution : 0.009448675, 0.009448675  (x, y)
+#extent     : -138.7553, -97.11496, 21.61105, 56.18375  (xmin, xmax, ymin, ymax)
+#crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+#source     : C:/Users/R. & S. Saldivar/Documents/Bren School/Spring 2019/ESM 270/Labs/RLab/CPHotspots/impact_trash.tif 
+#names      : impact_trash 
+
+threat_trash
+
+#Nutrients (Nutrient input)
+threat_nutrients <- raster("impact_nutrients.tif")
+#class      : RasterLayer 
+#dimensions : 3659, 4407, 16125213  (nrow, ncol, ncell)
+#resolution : 0.009448675, 0.009448675  (x, y)
+#extent     : -138.7553, -97.11496, 21.61105, 56.18375  (xmin, xmax, ymin, ymax)
+#crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+#source     : C:/Users/R. & S. Saldivar/Documents/Bren School/Spring 2019/ESM 270/Labs/RLab/CPHotspots/impact_nutrients.tif 
+#names      : impact_nutrients 
+
+threat_nutrients
+
+#Shipping (commercial, cruise, ferry)
+threats_shipping <- raster("impact_nutrients.tif")
+#class      : RasterLayer 
+#dimensions : 3659, 4407, 16125213  (nrow, ncol, ncell)
+#resolution : 0.009448675, 0.009448675  (x, y)
+#extent     : -138.7553, -97.11496, 21.61105, 56.18375  (xmin, xmax, ymin, ymax)
+#crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+#source     : C:/Users/R. & S. Saldivar/Documents/Bren School/Spring 2019/ESM 270/Labs/RLab/CPHotspots/impact_nutrients.tif 
+#names      : impact_nutrients 
+
+threats_shipping
+```
+
