@@ -272,19 +272,19 @@ threat_shipping
 
 ```{r}
 #Oil
-plot(threat_oil, col=cols)
+plot(threat_oil,ext=extent(-130,-110,24,50), col=cols)
 map('world',fill=T,add=T,col='gray')
 
 #trash
-plot(threat_trash, col=cols)
+plot(threat_trash,ext=extent(-130,-110,24,50), col=cols)
 map('world',fill=T,add=T,col='gray')
 
 #shipping
-plot(threat_shipping, col=cols)
+plot(threat_shipping,ext=extent(-130,-110,24,50), col=cols)
 map('world',fill=T,add=T,col='gray')
 
 #nutrients
-plot(threat_nutrients, col=cols)
+plot(threat_nutrients,ext=extent(-130,-110,24,50), col=cols)
 map('world',fill=T,add=T,col='gray')
 ```
 
@@ -305,23 +305,70 @@ threat_shippingNA <- reclassify(threat_shipping, rcl=c(-Inf,0,NA))
 #making oil binary
 oil_cutoff <- quantile(threat_oilNA,0.8)
 oil_maxVal <- cellStats(threat_oilNA,max)
+rcl_mat_oil <- c(-Inf,oil_cutoff,0,oil_cutoff,oil_maxVal,1)
+oil_binary <- reclassify(threat_oilNA, rcl=rcl_mat_oil)
+
 ```
 
 ```{r}
 #making nutrients binary
-nutrients_cutoff <- quantile(threat_nutrientNA,0.8)
-Nutrients_maxVal <- cellStats(threat_nutrientNA,max)
+nutrients_cutoff <- quantile(threat_nutrientsNA,0.8)
+nutrients_maxVal <- cellStats(threat_nutrientsNA,max)
+rcl_mat_nutrients <- c(-Inf,nutrients_cutoff,0,nutrients_cutoff, nutrients_maxVal,1)
+nutrients_binary <- reclassify(threat_nutrientsNA, rcl=rcl_mat_nutrients)
 ```
 
 ```{r}
 #making shipping binary
 shipping_cutoff <- quantile(threat_shippingNA,0.8)
 shipping_maxVal <- cellStats(threat_shippingNA,max)
+rcl_mat_shipping <- c(-Inf,shipping_cutoff,0,shipping_cutoff, shipping_maxVal,1)
+shipping_binary <- reclassify(threat_shippingNA, rcl=rcl_mat_shipping)
 ```
 
 ```{r}
 #making trash binary
 trash_cutoff <- quantile(threat_trashNA,0.8)
 trash_maxVal <- cellStats(threat_trashNA,max)
+rcl_mat_trash <- c(-Inf,trash_cutoff,0,trash_cutoff,trash_maxVal,1)
+trash_binary <- reclassify(threat_trashNA, rcl=rcl_mat_trash)
+```
+
+```{r}
+#combining the threat layers
+
+Human_threats <- stack(oil_binary,nutrients_binary,shipping_binary,trash_binary)
+
+plot(Human_threats,col=cols)
+
+```
+
+
+```{r}
+#trying to overlay using Sidney's Code
+
+#### Function to output a binary raster based on a user-given quantile (default is top 20%) ###
+reclassify_topx <- function(rast,quant=0.8) {
+  topx <- quantile(rast,quant) #find the 80% quantile of the raster values
+  maxVal <- cellStats(rast,max) #find the maximum
+  rcl <- c(-Inf,topx,0,
+            topx,maxVal,1) # reclassify matrix (see help file for ?reclassify)
+  out <- reclassify(rast,rcl=rcl)
+  return(out) # returns the new binary raster
+}
+
+### Find top 20%, using the code from above. We could easily choose a different quantile here. ###
+oil_top20 <- reclassify_topx(threat_oilNA,quant=0.8)
+
+nutrients_top20 <- reclassify_topx(threat_nutrientsNA,quant=0.8)
+
+shipping_top20 <- reclassify_topx(threat_shippingNA,quant=0.8)
+
+trash_top20 <- reclassify_topx(threat_trashNA,quant=0.8)
+
+#overlay the threats
+All_threats2 <- overlay(nutrients_top20,shipping_top20,acid_top20,uv_top20,sst_top20,fun=function(v,w,x,y,z){v+w+x+y+z})
+
+plot(All_threats2)
 ```
 
