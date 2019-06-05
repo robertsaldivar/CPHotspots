@@ -372,3 +372,14 @@ All_threats2 <- overlay(nutrients_top20,shipping_top20,acid_top20,uv_top20,sst_t
 plot(All_threats2)
 ```
 
+```{r}
+#Finding New Hotspots
+
+Hotspots_R <- overlay(All_threats2,spp_top,fun=function(x,y){x+y})
+
+plot(Hotspots_R)
+
+Hotspots_R2 <- overlay(All_threats2,spp_top,fun=function(x,y){x*y})
+plot(Hotspots_R2)
+```
+
